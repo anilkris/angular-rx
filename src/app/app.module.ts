@@ -54,12 +54,14 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from '@angular/material/tree';
 import { ConsoleRxComponent } from './console-rx/console-rx.component';
+import { PageComponent } from './page/page.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     RxOneComponent,
-    ConsoleRxComponent
+    ConsoleRxComponent,
+    PageComponent
   ],
   imports: [
     BrowserModule,
