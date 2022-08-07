@@ -1,9 +1,35 @@
 <section class="operators">
   <div class="example-label">Raised</div>
   <div class="example-button-row">
-    <button mat-raised-button>Basic</button>
     <button mat-raised-button color="primary" (click)="startInputStream()">InputStream</button>
     <button mat-raised-button color="primary" (click)="startInputStream2()">InputStream2</button>
     <button mat-raised-button color="primary" (click)="switchMap()">SwithMap</button>
+    <button mat-raised-button color="primary" (click)="combineLatest()">CombineLatest</button>
   </div>
+</section>
+
+<section class="data">
+
+  <mat-grid-list cols="8" rowHeight="400px">
+    <mat-grid-tile>
+      <mat-list>
+        <h3 mat-subheader>input1</h3>
+        <mat-list-item *ngFor="let item of input1Items">{{ item }}</mat-list-item>
+      </mat-list>
+    </mat-grid-tile>
+    <mat-grid-tile>
+      <mat-list>
+        <h3 mat-subheader>input2</h3>
+        <mat-list-item *ngFor="let item of input2Items">{{ item }}</mat-list-item>
+      </mat-list>
+
+    </mat-grid-tile>
+    <mat-grid-tile *ngIf="outputItems">
+      <mat-list>
+        <h3 mat-subheader>Output</h3>
+        <mat-list-item *ngFor="let item of outputItems">{{ item }}</mat-list-item>
+        </mat-list>
+
+    </mat-grid-tile>
+  </mat-grid-list>
 </section>

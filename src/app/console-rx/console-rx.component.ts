@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { interval, of, switchMap } from 'rxjs';
+import { interval, merge, of, switchMap ,mergeMap,reduce,combineLatest,tap,take,map} from 'rxjs';
 
-import { map, take,tap  } from 'rxjs/operators';
 @Component({
   selector: 'app-console-rx',
   templateUrl: './console-rx.component.html',
@@ -9,41 +8,64 @@ import { map, take,tap  } from 'rxjs/operators';
 })
 export class ConsoleRxComponent implements OnInit {
 
-  input1Items: any = [1, 2, 3, 4, 5, 6, 7];
-  input2Items: any = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+  alphabet : any = ['a', 'b', 'c', 'd', ]
+  input1Items: any = [];
+  input2Items: any = [];
 
   inputStream1: any;
   inputStream2: any;
+
+  outputItems: any = [];
 
   constructor() { }
 
   ngOnInit(): void {
 
+      this.inputStream1 = interval(2000).pipe(
+    tap(x=> console.log("Emitting", x)),
+    tap(x=> this.input1Items.push(x)),
+    take(2));
+          this.inputStream2 = interval(1000).pipe(
+    map(x=> this.alphabet[x]),
+    tap(x=> console.log("Emitting", x)),
+    tap(x=> this.input2Items.push(x)),
+    take(3));
+
+
   }
 
   startInputStream() {
-   this.inputStream1 = interval(1000).pipe(tap(x=> console.log("Emitting", x)), take(2));
-
+    this.inputStream1.subscribe();
+ 
   }
   startInputStream2() {
 
+    this.inputStream2.subscribe();
 
-   this.inputStream2 = interval(1000).pipe(tap(x=>console.log("Emitting stream2", x)), take(3));
-  }
+
+   }
 
   switchMap() {
+   this.input1Items = [];
+   this.input2Items = [];
+   this.outputItems = [];
 
     this.inputStream1.pipe(
-      switchMap(val => {
-        console.log('Source value from inputStream1: ' + val)
-        console.log('starting new observable: ')
-        return this.inputStream2; 
-      })
-    )
-      .subscribe((ret: any) => {
-        console.log('Received ' + ret);
-      })
+      switchMap(()=> this.inputStream2)
+    ).subscribe((y:any)=> {this.outputItems.push(y);console.log(y);});
+
+
   }
 
+  combineLatest() {
+  this.input1Items = [];
+  this.input2Items = [];
+  this.outputItems = [];
+
+    const joinStream = combineLatest(this.inputStream1, this.inputStream2 );
+
+    joinStream.subscribe((val)=> this.outputItems.push(val));
+
+  }
 
 }
