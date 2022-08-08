@@ -18,7 +18,7 @@
 					<mat-icon class="menu-button" [ngClass]="{'rotated' : true}">expand_more</mat-icon>
 				</mat-list-item>
 				<div class="submenu" [ngClass]="{'expanded' : true}">
-					<mat-list-item (click)="onSwitchMap()" >SwitchMap</mat-list-item>
+					<mat-list-item (click)="onSwitchMap()">SwitchMap</mat-list-item>
 					<mat-list-item (click)="onCombineLatest()">CombineLatest</mat-list-item>
 				</div>
 			</div>
@@ -29,31 +29,32 @@
 
 	<mat-sidenav-content class="data">
 		<mat-grid-list cols="1" rowHeight="100px">
+
 			<mat-grid-tile>
+				<mat-card>Alphabets
 
-				<mat-card>Input1
-					<mat-slide-toggle [(ngModel)]="isStream1Start"
-						(ngModelChange)="inputStream1StateChange(isStream1Start)">Start</mat-slide-toggle>
-
+					<mat-slide-toggle [(ngModel)]="isStreamStart"
+						(ngModelChange)="inputStream2StateChange(isStreamStart)">Start</mat-slide-toggle>
 					<mat-list class="inline-list">
 
-						<mat-list-item class="horizontal-mat-list-item" *ngFor="let item of input1Items"> {{item}}
+						<mat-list-item class="horizontal-mat-list-item" *ngFor="let item of inputItems"> {{item}}
 						</mat-list-item>
 					</mat-list>
+
 				</mat-card>
 
 			</mat-grid-tile>
 			<mat-grid-tile>
-				<mat-card>Input2
 
-					<mat-slide-toggle [(ngModel)]="isStream2Start"
-						(ngModelChange)="inputStream2StateChange(isStream2Start)">Start</mat-slide-toggle>
+				<mat-card>Countries
+					<mat-slide-toggle [(ngModel)]="isCountryStreamStart"
+						(ngModelChange)="countriesStreamStateChange(isCountryStreamStart)">Start</mat-slide-toggle>
+
 					<mat-list class="inline-list">
 
-						<mat-list-item class="horizontal-mat-list-item" *ngFor="let item of input2Items"> {{item}}
+						<mat-list-item class="horizontal-mat-list-item" *ngFor="let item of inputCountries"> {{item}}
 						</mat-list-item>
 					</mat-list>
-
 				</mat-card>
 
 			</mat-grid-tile>

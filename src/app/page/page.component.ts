@@ -1,6 +1,8 @@
+import { ArrayDataSource } from '@angular/cdk/collections';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
-import { interval, tap, map, take, switchMap, mergeMap, combineLatest } from 'rxjs';
+import { interval, tap, map, take, switchMap, mergeMap, combineLatest, filter, of } from 'rxjs';
+import { COUNTRIES } from '../Counties';
 
 @Component({
   selector: 'app-page',
@@ -10,103 +12,124 @@ import { interval, tap, map, take, switchMap, mergeMap, combineLatest } from 'rx
 export class PageComponent implements OnInit {
 
 
-  ALPHABET: any = ['a', 'b', 'c', 'd', 'e', 'f']
-  MYNUMBERS = [0, 1, 2, 3, 4, 5];
-  input1Items: any = this.MYNUMBERS;
-  input2Items: any = this.ALPHABET;
+  ALPHABET: any = ['a', 'b', 'c', 'd', 'e', 'f','g','h','i','j','k']
 
-  inputStream1: any;
-  inputStream2: any;
+  MYALPHABET= this.ALPHABET.slice(0,6);
+  MYCOUNTRIES = COUNTRIES.map(x=>x.country).slice(0,6);
+  inputCountries: any = this.MYCOUNTRIES;
+  inputItems: any = this.MYALPHABET;
+
+  inputStream: any;
+  countriesStream: any;
 
   outputItems: any = [];
-  isStream1Start = false;
-  isStream2Start = false;
+  isCountryStreamStart = false;
+  isStreamStart = false;
 
-  input1Subscribe: any;
-  input2Subscribe: any;
+  countriesSubscribe: any;
+  inputSubscribe: any;
   constructor() { }
 
   ngOnInit(): void {
 
-    this.inputStream1 = interval(2000).pipe(
-      tap(x => console.log("Emitting", x)),
-      tap(x => this.input1Items.push(x)),
-      take(6));
-    this.inputStream2 = interval(1000).pipe(
+
+    this.inputStream = interval(3000).pipe(
       map(x => this.ALPHABET[x]),
-      tap(x => console.log("Emitting", x)),
-      tap(x => this.input2Items.push(x)),
+      tap(x => this.inputItems.push(x)),
+      take(6));
+
+    this.countriesStream = interval(500).pipe(
+      map(x => COUNTRIES[x]),
+      tap(x=>console.log(x.country)),
+      tap(x => this.inputCountries.push(x.country)),
       take(6));
 
 
   }
 
   @ViewChild('sidenav') sidenav!: MatSidenav;
-  inputStream1StateChange(isStream1Start: boolean) {
+  countriesStreamStateChange(isCountryStreamStart: boolean) {
 
-    console.log("value of istreamisStream1Start", isStream1Start);
-    if (isStream1Start) {
-      this.input1Items = [];
-      this.input1Subscribe = this.inputStream1.subscribe(() => { }, () => { }, () => { console.log("completed"); isStream1Start = false });
+    console.log("value of istreamisCountryStreamStart", isCountryStreamStart);
+    if (isCountryStreamStart) {
+      this.inputCountries = [];
+      this.countriesSubscribe = this.countriesStream.subscribe(() => { }, () => { }, () => { console.log("completed"); isCountryStreamStart = false });
     } else {
-      this.input1Subscribe.unsubscribe();
+      this.countriesSubscribe.unsubscribe();
 
-      this.input1Items = [];
-      this.input1Items = this.MYNUMBERS;
+      this.inputCountries = [];
+      this.inputCountries = this.MYCOUNTRIES;
     }
-
 
 
   }
 
-  inputStream2StateChange(isStream2Start: boolean) {
+  inputStream2StateChange(isStreamStart: boolean) {
 
-    console.log("value of istreamisStream1Start", isStream2Start);
-    if (isStream2Start) {
-      this.input2Items = [];
-      this.input2Subscribe = this.inputStream2.subscribe(() => { }, () => { }, () => { console.log("completed"); isStream2Start = false });
+    if (isStreamStart) {
+      this.inputItems = [];
+      this.inputSubscribe = this.inputStream.subscribe(() => { }, () => { }, () => { console.log("completed"); isStreamStart = false });
     } else {
 
-      this.input2Subscribe.unsubscribe();
+      this.inputSubscribe.unsubscribe();
 
-      this.input2Items = [];
-      this.input2Items = this.ALPHABET;
+      this.inputItems = [];
+      this.inputItems = this.MYALPHABET;
     }
 
   }
 
   onSwitchMap() {
-    this.input1Items = [];
-    this.input2Items = [];
+    this.inputCountries = [];
+    this.inputItems = [];
     this.outputItems = [];
 
-    this.inputStream1.pipe(
-      switchMap(() => this.inputStream2)
-    ).subscribe((y: any) => { this.outputItems.push(y); console.log(y); });
-
+    this.inputStream.pipe(
+      switchMap(this.getCountriesRequest$),
+      map((x: any) => x.slice(0, 6)),
+      tap(x => this.updateOutputItems(x))
+    ).subscribe((y: any) => { this.outputItems.push(y.country); console.log(y); });
 
   }
 
+  getCountries = (keys: any) => COUNTRIES.filter((e: any) =>
+    e.country.toLowerCase().charAt(0) === keys.toLowerCase());
+
+
+  getCountriesRequest$ = (keys: any) => of(this.getCountries(keys)).pipe(take(6));
   onMergeMap() {
-    this.input1Items = [];
-    this.input2Items = [];
+    this.inputCountries = [];
+    this.inputItems = [];
     this.outputItems = [];
 
-    this.inputStream1.pipe(
-      mergeMap(() => this.inputStream2)
-    ).subscribe((y: any) => { this.outputItems.push(y); console.log(y); });
+    this.countriesStream.pipe(
+      mergeMap(() => this.inputStream)
+    ).subscribe((y: any) => { this.outputItems.push(y.country); console.log(y); });
 
 
   }
 
   onCombineLatest() {
-    this.input1Items = [];
-    this.input2Items = [];
+    this.inputCountries = [];
+    this.inputItems = [];
     this.outputItems = [];
 
-    const joinStream = combineLatest(this.inputStream1, this.inputStream2);
+    const joinStream = combineLatest(this.countriesStream.pipe(map((x:any)=>x.country)), this.inputStream);
 
     joinStream.subscribe((val) => this.outputItems.push(val));
 
   }
+  updateOutputItems(countriesInfo: any): void {
+
+    console.log("update output with", countriesInfo);
+
+    if (Array.isArray(countriesInfo)) {
+      const result = countriesInfo.map(x => x.country);
+      this.outputItems = result;
+    }
+
+
+  }
 }
+
+
